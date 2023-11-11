@@ -22,18 +22,51 @@ nnmaps <- read_csv("~/Desktop/chicago-nmmaps.csv")
 ##a
 
 ```{r}
-df<-nnmaps %>% group_by(month_numeric,month,season) %>% summarize(avg_temp=mean(temp,na.rm=TRUE))%>%arrange(month_numeric)
+##calculate the mean monthly temperature and the order it by month
+df<-nnmaps %>% group_by(month_numeric,month,season) %>% summarize(avg_temp=mean(temp,na.rm=TRUE), .groups = "drop")%>%arrange(month_numeric)
 
+##convert month into a factor variable with different levels
 df$month <- factor(df$month, levels = c("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"))
 
+##create a plot
 ggplot(df, aes(x = month, y = avg_temp, color = season)) +
   geom_point()+
   geom_line(aes(group = season)) +
+  ##set each season with different color
   scale_color_manual(values = c("orange", "pink", "green", "blue"))+
-  
+  ##set the labels of plot
   labs(title = "Mean Monthly Temperature in Celsius",
-       x = "Month",
-       y = "Average Monthly Temperature (Celsius)")
+       x = "month",
+       y = "mean temperature (celsius)")
 ```
 
+df2\<-subset(df2, select = -month_numeric)
+
+df2_longer\<-df2 %\>% select("avg_temp","avg_o3","avg_pm10","avg_dewpt") %\>% pivot_longer(-month,names_to = "avg", values_to = "value")
+
 ##b
+
+```{r}
+##calculate the mean monthly temperature, mean monthly o3, mean monthly pm10, and mean monthly dewpoint, and then order it by month
+df2<-nnmaps %>% group_by(month_numeric,month,season) %>% summarize(avg_temp=mean(temp,na.rm=TRUE), avg_o3=mean(o3, na.rm=TRUE), avg_pm10=mean(pm10,na.rm=TRUE), avg_dewpt=mean(dewpoint,na.rm=TRUE), .groups = "drop") %>% arrange(month_numeric)
+
+
+
+##convert month into a factor variable with different levels
+df2$month <- factor(df2$month, levels = c("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"))
+
+##reshape the data frame
+df2_longer<-df2 %>% select("month","avg_temp","avg_o3","avg_pm10","avg_dewpt") %>% pivot_longer(-month,names_to = "mean_value", values_to = "value")
+
+##create a plot
+ggplot(df2_longer, aes(x = month, y = value, color = mean_value, group = mean_value)) +
+  geom_point() +
+  geom_line() +
+  scale_color_manual(values = c("avg_temp" = "orange", "avg_o3" = "pink", "avg_pm10" = "green", "avg_dewpt" = "blue"))+
+
+labs(title = "Mean Monthly Data",
+       x = "month",
+       y = "mean value(monthly)")
+```
+
+From the output, we can see the green line, which is the variable "pm10" has the least seasonal trend.
