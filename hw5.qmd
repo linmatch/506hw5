@@ -68,6 +68,33 @@ From the output, we can see the green line, which is the variable "pm10" has the
 
 ## Problem2
 
+##a
+
+```{r}
+##Define a class called "poly"
+setClass("poly",slots = c(coef="numeric",degree="numeric"))
+
+##Define a constructor
+make_poly <- function(coefficient, degree){
+  degree<-length(coefficient)-1
+  new("poly", coef= coefficient , degree=degree)
+}
+
+##Set validator
+setValidity("poly", function(object){
+  if(!is.numeric(object@coef)){
+    stop(paste("@coef=", object@coef, "is not numeric"))
+  }
+  if(!is.numeric(object@degree)){
+     stop(paste("@degree=", object@degree, "is not numeric"))
+  }
+  else if(length(object@coef) != (object@degree + 1)){
+    stop("Length of coefficient is not equal to degree+1")
+  }
+  return(TRUE)
+})
+```
+
 ## Problem3
 
 ```{r}
@@ -98,5 +125,6 @@ table2[order(-mean_arr_delay)]
 ```{r}
 planes <- as.data.table(planes)
 merged_data <- nyc13df[planes, on = "tailnum"]
-
+table3<- merged_data[, .(avg_speed = mean(distance / air_time * 60, na.rm = TRUE), num_flights = .N), by = model]
+table3[order(-avg_speed)][1]
 ```
