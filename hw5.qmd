@@ -22,10 +22,18 @@ nnmaps <- read_csv("~/Desktop/chicago-nmmaps.csv")
 ##a
 
 ```{r}
-df<-nnmaps %>% group_by(month,season) %>% summarize(avg_temp=mean(temp,na.rm=TRUE))
-  
+df<-nnmaps %>% group_by(month_numeric,month,season) %>% summarize(avg_temp=mean(temp,na.rm=TRUE))%>%arrange(month_numeric)
+
+df$month <- factor(df$month, levels = c("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"))
+
 ggplot(df, aes(x = month, y = avg_temp, color = season)) +
   geom_point()+
-  geom_line() +
-  scale_color_manual(values = c("orange", "pink", "green", "blue"))
+  geom_line(aes(group = season)) +
+  scale_color_manual(values = c("orange", "pink", "green", "blue"))+
+  
+  labs(title = "Mean Monthly Temperature in Celsius",
+       x = "Month",
+       y = "Average Monthly Temperature (Celsius)")
 ```
+
+##b
