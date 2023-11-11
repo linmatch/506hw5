@@ -80,14 +80,23 @@ nyc13df<-data.table(flights)
 
 ```{r}
 ##get the mean and median departure delay and group it by each airport name
-table1<-nyc13df[,.(mean_dep_delay=mean(dep_delay, na.rm = TRUE), median_dep_delay=median(dep_delay, na.rm = TRUE)), by = .(origin)]
+table1<-nyc13df[,.(mean_dep_delay=mean(dep_delay, na.rm = TRUE), median_dep_delay=median(dep_delay, na.rm = TRUE)), by = origin]
 ##print the table
 table1[order(-mean_dep_delay)]
 ```
 
 ```{r}
-table2<-nyc13df[,.(mean_arr_delay=mean(arr_delay, na.rm = TRUE), median_arr_delay=median(arr_delay, na.rm = TRUE)), by = .(dest)]
+##get the mean and median departure delay and number of flight for each airport, and subset the result by number of flight>10.
+table2<-nyc13df[,.(mean_arr_delay=mean(arr_delay, na.rm = TRUE), median_arr_delay=median(arr_delay, na.rm = TRUE), numflights = .N), by = dest][numflights > 10]
 
 ##print the table
 table2[order(-mean_arr_delay)]
+```
+
+##b
+
+```{r}
+planes <- as.data.table(planes)
+merged_data <- nyc13df[planes, on = "tailnum"]
+
 ```
