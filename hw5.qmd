@@ -1,0 +1,31 @@
+---
+title: "506hw5"
+format:
+  html:
+    embed-resources: true
+editor: visual
+---
+
+## Problem1
+
+```{r}
+library(ggplot2)
+```
+
+```{r}
+library(readr)
+library(tidyverse)
+nnmaps <- read_csv("~/Desktop/chicago-nmmaps.csv")
+##View(nnmaps)
+```
+
+##a
+
+```{r}
+df<-nnmaps %>% group_by(month,season) %>% summarize(avg_temp=mean(temp,na.rm=TRUE))
+  
+ggplot(df, aes(x = month, y = avg_temp, color = season)) +
+  geom_point()+
+  geom_line() +
+  scale_color_manual(values = c("orange", "pink", "green", "blue"))
+```
