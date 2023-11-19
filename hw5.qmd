@@ -71,12 +71,11 @@ From the output, we can see the green line, which is the variable "pm10" has the
 ##a
 
 ```{r}
-##Define a class called "poly"
-setClass("poly",slots = c(coef="numeric",degree="numeric"))
+##Define a class called "poly", store the class as a list
+setClass("poly",representation(coef="numeric",degree="numeric"),prototype(coef = numeric(), degree = numeric()))
 
 ##Define a constructor
 make_poly <- function(coefficient, degree){
-  degree<-length(coefficient)-1
   new("poly", coef= coefficient , degree=degree)
 }
 
@@ -88,11 +87,46 @@ setValidity("poly", function(object){
   if(!is.numeric(object@degree)){
      stop(paste("@degree=", object@degree, "is not numeric"))
   }
-  else if(length(object@coef) != (object@degree + 1)){
-    stop("Length of coefficient is not equal to degree+1")
+  else if(length(object@coef) != length(object@degree)){
+    stop("Length of coefficient is not equal to degree")
   }
   return(TRUE)
 })
+
+##Set method
+setMethod("show", "poly", function(object){
+  terms <- paste(object@coef, "*x^", object@degree, sep = "")
+  cat(paste(terms, collapse = " + "), "\n")
+})
+
+##Addition method
+setMethod("+", signature(e1="poly", e2="poly"),
+          function(e1, e2) {
+            if(!identical(e1@degree, e2@degree)){
+              stop("Polynomials must have the same degrees for addition.")
+            } 
+            result_coef <- e1@coef + e2@coef
+            make_poly(result_coef, e1@degree)
+          })
+
+##Subtraction method
+setMethod("-", signature(e1="poly", e2="poly"),
+          function(e1, e2) {
+            if(!identical(e1@degree, e2@degree)){
+              stop("Polynomials must have the same degrees for subtraction")
+            } 
+            result_coef <- e1@coef - e2@coef
+            make_poly(result_coef, e1@degree)
+          })
+
+poly1 <- make_poly(coef = c(3, 0, 2), degree = c(2, 0, 0))
+poly2 <- make_poly(coef = c(7, -2, 1, 17), degree = c(3, 2, 1, 0))
+
+poly1
+poly2
+
+poly1 + poly2
+poly1 - poly2
 ```
 
 ## Problem3
@@ -126,5 +160,6 @@ table2[order(-mean_arr_delay)]
 planes <- as.data.table(planes)
 merged_data <- nyc13df[planes, on = "tailnum"]
 table3<- merged_data[, .(avg_speed = mean(distance / air_time * 60, na.rm = TRUE), num_flights = .N), by = model]
+
 table3[order(-avg_speed)][1]
 ```
