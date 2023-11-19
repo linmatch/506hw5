@@ -95,28 +95,56 @@ setValidity("poly", function(object){
 
 ##Set method
 setMethod("show", "poly", function(object){
-  terms <- paste(object@coef, "*x^", object@degree, sep = "")
-  cat(paste(terms, collapse = " + "), "\n")
+  terms <- character(length(object@coef))
+  for (i in seq_along(object@coef)) {
+    if (object@coef[i] != 0) {
+      if (object@degree[i] > 0) {
+        terms[i] <- paste0(ifelse(i == 1, "", ifelse(object@coef[i] > 0, "+", "")),
+                           ifelse(abs(object@coef[i]) == 1, ifelse(object@coef[i] > 0, "", "-"), object@coef[i]), "x^", object@degree[i])
+      } 
+      else {
+        terms[i] <- paste0(ifelse(object@coef[i] > 0, "+", ""), 
+                           as.character(object@coef[i]))
+      }
+    }
+  }
+  cat(gsub("\\+\\s+", "+", paste(terms, collapse = "")), "\n")
 })
 
 ##Addition method
-setMethod("+", signature(e1="poly", e2="poly"),
-          function(e1, e2) {
-            if(!identical(e1@degree, e2@degree)){
-              stop("Polynomials must have the same degrees for addition.")
-            } 
-            result_coef <- e1@coef + e2@coef
-            make_poly(result_coef, e1@degree)
-          })
+setMethod("+", signature(e1="poly", e2="poly"),function(e1, e2) {
+            validObject(e1)
+            validObject(e2)
+            all_degrees <- unique(c(e1@degree, e2@degree))
+            result_coef <- numeric(length(all_degrees))
+            result_degree <- numeric(length(all_degrees))
+            
+            for (i in seq_along(all_degrees)) {
+              degree <- all_degrees[i]
+              coef_e1 <- e1@coef[e1@degree == degree]
+              coef_e2 <- e2@coef[e2@degree == degree]
+              result_coef[i] <- sum(c(coef_e1, coef_e2))
+              result_degree[i] <- degree
+            }
+            make_poly(coefficient = result_coef, degree = result_degree)
+            })
 
 ##Subtraction method
-setMethod("-", signature(e1="poly", e2="poly"),
-          function(e1, e2) {
-            if(!identical(e1@degree, e2@degree)){
-              stop("Polynomials must have the same degrees for subtraction")
-            } 
-            result_coef <- e1@coef - e2@coef
-            make_poly(result_coef, e1@degree)
+setMethod("-", signature(e1="poly", e2="poly"),function(e1, e2) {
+            validObject(e1)
+            validObject(e2)
+            all_degrees <- unique(c(e1@degree, e2@degree))
+            result_coef <- numeric(length(all_degrees))
+            result_degree <- numeric(length(all_degrees))
+            
+            for (i in seq_along(all_degrees)) {
+              degree <- all_degrees[i]
+              coef_e1 <- e1@coef[e1@degree == degree]
+              coef_e2 <- e2@coef[e2@degree == degree]
+              result_coef[i] <- sum(c(coef_e1, -coef_e2))
+              result_degree[i] <- degree
+            }
+            make_poly(coefficient = result_coef, degree = result_degree)
           })
 
 poly1 <- make_poly(coef = c(3, 0, 2), degree = c(2, 0, 0))
